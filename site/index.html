@@ -17,8 +17,16 @@
     <button class="nav-tab" data-view="about">关于</button>
   </nav>
   <div class="search-box">
-    <input id="search" type="text" placeholder="搜索频道… (如 CNN / BBC / 央视)">
+    <input id="search" type="text" data-i18n="search_ph" placeholder="搜索频道… (如 CNN / BBC / 央视)">
   </div>
+  <select id="lang-sel" class="lang-sel" title="Language / 语言">
+    <option value="zh">中文</option>
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <option value="fr">Français</option>
+    <option value="ru">Русский</option>
+    <option value="ja">日本語</option>
+  </select>
 </header>
 
 <main>
@@ -45,11 +53,11 @@
   <!-- 关于视图 -->
   <section id="view-about" class="view">
     <div class="about-box">
-      <h2>📺 WebTV — 开源 IPTV 播放平台</h2>
-      <p>聚合全球公开免费的电视直播频道，支持多源自动切换与节目单。</p>
-      <h3>📡 数据来源</h3>
+      <h2 id="about-title">📺 WebTV — 开源 IPTV 播放平台</h2>
+      <p id="about-desc">聚合全球公开免费的电视直播频道，支持多源自动切换与节目单。</p>
+      <h3 id="about-src">📡 数据来源</h3>
       <ul id="src-list"></ul>
-      <p class="legal">本项目仅聚合公开可用流地址，不托管任何视频内容；版权归原频道所有。</p>
+      <p class="legal" id="legal">本项目仅聚合公开可用流地址，不托管任何视频内容；版权归原频道所有。</p>
     </div>
   </section>
 </main>

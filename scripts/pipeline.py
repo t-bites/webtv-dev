@@ -101,6 +101,7 @@ def main():
         ch_items.append({
             "id": ch,
             "n": c["name"],
+            "an": c.get("alt_names", [])[:6],   # 多语言名（搜索可命中）
             "c": c.get("country", ""),
             "g": c.get("categories", []),
             "lg": (logo_map.get(ch) or {}).get("url") or "",

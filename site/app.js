@@ -63,13 +63,15 @@ function filtered() {
   let list = ALL_CH;
   if (country) list = list.filter(c => c.c === country);
   if (category) list = list.filter(c => (c.g || []).includes(category));
-  if (q) list = list.filter(c => c.n.toLowerCase().includes(q) || (c.g || []).some(g => g.includes(q)));
+  if (q) list = list.filter(c => c.n.toLowerCase().includes(q)
+    || (c.an || []).some(a => a.toLowerCase().includes(q))
+    || (c.g || []).some(g => g.includes(q)));
   return list;
 }
 function renderGrid() {
   const grid = $('#ch-grid');
   const list = filtered();
-  if (!list.length) { grid.innerHTML = '<div class="empty">没有匹配的频道</div>'; return; }
+  if (!list.length) { grid.innerHTML = `<div class="empty">${_t('empty')}</div>`; return; }
   grid.innerHTML = list.map(c => `
     <div class="ch-card" data-id="${esc(c.id)}">
       ${c.lg ? `<img class="ch-logo" src="${esc(c.lg)}" loading="lazy" onerror="this.outerHTML='<div class=ch-logo-ph>📺</div>'">` : '<div class="ch-logo-ph">📺</div>'}
@@ -93,7 +95,7 @@ function renderCountries() {
     <div class="country-card" data-cc="${cc}">
       <div class="cc">${flagEmoji(cc)}</div>
       <div class="cn">${esc(it.name)}</div>
-      <div class="ccnt">${it.count} 频道</div>
+      <div class="ccnt">${it.count} ${_t('channels')}</div>
     </div>`).join('');
   $$('.country-card', grid).forEach(card => card.addEventListener('click', () => {
     $('#f-country').value = card.dataset.cc;
@@ -109,7 +111,7 @@ function renderCategories() {
   grid.innerHTML = Object.entries(INDEX.categories).sort((a, b) => b[1] - a[1]).map(([cat, n]) => `
     <div class="cat-card" data-cat="${esc(cat)}">
       <div class="cn">${catIcon(cat)} ${esc(cat)}</div>
-      <div class="ccnt">${n} 频道</div>
+      <div class="ccnt">${n} ${_t('channels')}</div>
     </div>`).join('');
   $$('.cat-card', grid).forEach(card => card.addEventListener('click', () => {
     $('#f-category').value = card.dataset.cat;
@@ -121,6 +123,10 @@ function renderCategories() {
   }));
 }
 function renderAbout() {
+  $('#about-title').textContent = _t('about_title');
+  $('#about-desc').textContent = _t('about_desc');
+  $('#about-src').textContent = _t('about_src');
+  $('#legal').textContent = _t('legal');
   $('#src-list').innerHTML = (INDEX.data_sources || []).map(s =>
     `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a> — ${esc(s.type)}</li>`).join('');
 }
@@ -134,7 +140,7 @@ async function openChannel(id) {
   $('#p-logo').src = curDetail.logo || '';
   $('#p-name').textContent = curDetail.name;
   $('#p-quality').textContent = '';
-  $('#p-source-count').textContent = `${curDetail.sources.length} 源`;
+  $('#p-source-count').textContent = `${curDetail.sources.length} ${_t('sources')}`;
   $('#player-overlay').classList.remove('hidden');
   $('#p-status').textContent = '';
   renderSrcBar();
@@ -156,7 +162,7 @@ function playSource(i) {
   destroyHls();
   const src = curDetail.sources[i];
   const v = $('#video');
-  $('#p-status').textContent = `尝试源 ${i + 1}/${curDetail.sources.length} (${src.quality || 'auto'})…`;
+  $('#p-status').textContent = `${_t('try_src')} ${i + 1}/${curDetail.sources.length} (${src.quality || 'auto'})…`;
   renderSrcBar();
   // 带 referrer/ua 的源：hls.js 无法直接设置请求头，尝试裸播（多数源无需）
   const url = src.url;
@@ -179,7 +185,7 @@ function playSource(i) {
         }
       });
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        $('#p-status').textContent = `播放中 (${src.quality || 'auto'})`;
+        $('#p-status').textContent = `${_t('playing')} (${src.quality || 'auto'})`;
         $('#p-quality').textContent = src.quality || 'auto';
         playing = true;
       });
@@ -197,10 +203,10 @@ function autoNext(reason) {
   if (!curDetail) return;
   const total = curDetail.sources.length;
   if (srcIdx < total - 1) {
-    $('#p-status').textContent = `${reason} → 切换源 ${srcIdx + 2}/${total}`;
+    $('#p-status').textContent = `${reason} → ${_t('try_src')} ${srcIdx + 2}/${total}`;
     playSource(srcIdx + 1);
   } else {
-    $('#p-status').textContent = `所有 ${total} 个源均失败`;
+    $('#p-status').textContent = `${_t('all_failed')} ${total} ${_t('failed')}`;
     playing = false;
   }
 }
@@ -226,6 +232,33 @@ async function loadEpg() {
   } catch (e) {}
 }
 
+/* ---------- 多语言 i18n ---------- */
+const I18N = {
+  zh: { search_ph: '搜索频道… (如 CNN / BBC / 央视)', tab_browse: '频道', tab_countries: '国家', tab_categories: '分类', tab_about: '关于', all_country: '全部国家', all_category: '全部分类', loading: '加载中…', empty: '没有匹配的频道', sources: '源', about_title: '📺 WebTV — 开源 IPTV 播放平台', about_desc: '聚合全球公开免费的电视直播频道，支持多源自动切换与节目单。', about_src: '📡 数据来源', legal: '本项目仅聚合公开可用流地址，不托管任何视频内容；版权归原频道所有。', try_src: '尝试源', playing: '播放中', all_failed: '所有', failed: '个源均失败', no_hls: '浏览器不支持 HLS', switch_next: '切换下一源', epg_label: '📋 节目', channels: '频道' },
+  en: { search_ph: 'Search channels… (e.g. CNN / BBC / CCTV)', tab_browse: 'Channels', tab_countries: 'Countries', tab_categories: 'Categories', tab_about: 'About', all_country: 'All countries', all_category: 'All categories', loading: 'Loading…', empty: 'No matching channels', sources: 'sources', about_title: '📺 WebTV — Open-Source IPTV Platform', about_desc: 'Free public live TV channels from around the world, with multi-source auto-failover and EPG.', about_src: '📡 Data Sources', legal: 'This site only aggregates publicly available streams. No content is hosted here; all rights belong to original broadcasters.', try_src: 'Trying source', playing: 'Playing', all_failed: 'All', failed: 'sources failed', no_hls: 'HLS not supported in this browser', switch_next: 'Next source', epg_label: '📋 Now', channels: 'channels' },
+  es: { search_ph: 'Buscar canales… (ej. CNN / BBC)', tab_browse: 'Canales', tab_countries: 'Países', tab_categories: 'Categorías', tab_about: 'Acerca', all_country: 'Todos los países', all_category: 'Todas las categorías', loading: 'Cargando…', empty: 'Sin canales coincidentes', sources: 'fuentes', about_title: '📺 WebTV — Plataforma IPTV Open Source', about_desc: 'Canales de TV gratuitos de todo el mundo con cambio automático de fuente y EPG.', about_src: '📡 Fuentes de datos', legal: 'Este sitio solo agrega transmisiones públicas. No se aloja contenido; los derechos pertenecen a los emisores.', try_src: 'Probando fuente', playing: 'Reproduciendo', all_failed: 'Todas', failed: 'fuentes fallaron', no_hls: 'HLS no soportado', switch_next: 'Siguiente fuente', epg_label: '📋 Ahora', channels: 'canales' },
+  fr: { search_ph: 'Rechercher… (ex. CNN / BBC)', tab_browse: 'Chaînes', tab_countries: 'Pays', tab_categories: 'Catégories', tab_about: 'À propos', all_country: 'Tous les pays', all_category: 'Toutes les catégories', loading: 'Chargement…', empty: 'Aucune chaîne trouvée', sources: 'sources', about_title: '📺 WebTV — Plateforme IPTV Open Source', about_desc: 'Chaînes TV gratuites du monde entier avec bascule automatique multi-source et EPG.', about_src: '📡 Sources de données', legal: 'Ce site agrège uniquement des flux publics. Aucun contenu hébergé; droits aux diffuseurs.', try_src: 'Essai source', playing: 'Lecture', all_failed: 'Toutes', failed: 'sources échouées', no_hls: 'HLS non supporté', switch_next: 'Source suivante', epg_label: '📋 En cours', channels: 'chaînes' },
+  ru: { search_ph: 'Поиск каналов… (напр. CNN / BBC)', tab_browse: 'Каналы', tab_countries: 'Страны', tab_categories: 'Категории', tab_about: 'О сайте', all_country: 'Все страны', all_category: 'Все категории', loading: 'Загрузка…', empty: 'Ничего не найдено', sources: 'источники', about_title: '📺 WebTV — Open Source IPTV', about_desc: 'Бесплатные ТВ-каналы со всего мира с автопереключением источников и EPG.', about_src: '📡 Источники данных', legal: 'Сайт агрегирует только публичные потоки. Контент не размещается; права принадлежат вещателям.', try_src: 'Пробуем источник', playing: 'Воспроизведение', all_failed: 'Все', failed: 'источников недоступны', no_hls: 'HLS не поддерживается', switch_next: 'Следующий источник', epg_label: '📋 Сейчас', channels: 'каналов' },
+  ja: { search_ph: 'チャンネル検索… (例: CNN / BBC)', tab_browse: 'チャンネル', tab_countries: '国', tab_categories: 'カテゴリ', tab_about: '情報', all_country: 'すべての国', all_category: 'すべてのカテゴリ', loading: '読み込み中…', empty: '一致するチャンネルなし', sources: 'ソース', about_title: '📺 WebTV — オープンソース IPTV', about_desc: '世界中の無料テレビチャンネル、マルチソース自動切替とEPG対応。', about_src: '📡 データソース', legal: '公開ストリームのみを集約。コンテンツはホストせず、権利は放送局に帰属。', try_src: 'ソース試行中', playing: '再生中', all_failed: 'すべての', failed: 'ソースが失敗', no_hls: 'HLS未対応ブラウザ', switch_next: '次のソース', epg_label: '📋 現在', channels: 'チャンネル' },
+};
+let LANG = localStorage.getItem('webtv_lang') || (navigator.language || 'en').slice(0, 2);
+if (!I18N[LANG]) LANG = 'en';
+function t(key) { return (I18N[LANG] || I18N.en)[key] || I18N.en[key] || key; }
+function applyI18n() {
+  document.documentElement.lang = LANG;
+  $$('[data-i18n]').forEach(el => { el.placeholder = t(el.dataset.i18n); });
+  $$('.nav-tab').forEach(el => { el.textContent = t('tab_' + el.dataset.view); });
+  $('#f-country').options[0].textContent = t('all_country');
+  $('#f-category').options[0].textContent = t('all_category');
+  $('#p-switch').textContent = t('switch_next');
+  $('#lang-sel').value = LANG;
+}
+$('#lang-sel').addEventListener('change', e => {
+  LANG = e.target.value; localStorage.setItem('webtv_lang', LANG); applyI18n(); renderGrid(); renderCountries(); renderCategories();
+});
+// 挂接渲染里的文案
+const _t = t;
+
 /* ---------- 工具 ---------- */
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function flagEmoji(cc) {
@@ -240,4 +273,5 @@ function catIcon(cat) {
 }
 
 loadIndex().catch(e => { $('#loading').textContent = '数据加载失败: ' + e.message; });
+applyI18n();
 })();
