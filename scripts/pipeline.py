@@ -14,7 +14,7 @@ from collections import defaultdict
 
 BASE = Path(__file__).resolve().parent.parent
 RAW = BASE / "data" / "raw"
-SITE = BASE / "data" / "site"
+SITE = BASE / "site"   # 站点部署根（site/data/ 数据产物 gitignore）
 API_BASE = "https://iptv-org.github.io/api"
 UA = {"User-Agent": "Mozilla/5.0 WebTV pipeline"}
 EP_FRESH = 6 * 3600  # 6 小时缓存

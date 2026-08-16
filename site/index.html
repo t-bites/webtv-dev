@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebTV — 全球免费电视直播</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">📺 WebTV <span class="tag">开源直播平台</span></div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-view="browse">频道</button>
+    <button class="nav-tab" data-view="countries">国家</button>
+    <button class="nav-tab" data-view="categories">分类</button>
+    <button class="nav-tab" data-view="about">关于</button>
+  </nav>
+  <div class="search-box">
+    <input id="search" type="text" placeholder="搜索频道… (如 CNN / BBC / 央视)">
+  </div>
+</header>
+
+<main>
+  <!-- 浏览视图 -->
+  <section id="view-browse" class="view active">
+    <div class="filter-bar">
+      <select id="f-country"><option value="">全部国家</option></select>
+      <select id="f-category"><option value="">全部分类</option></select>
+    </div>
+    <div class="ch-grid" id="ch-grid"></div>
+    <div class="loading" id="loading">加载中…</div>
+  </section>
+
+  <!-- 国家视图 -->
+  <section id="view-countries" class="view">
+    <div class="country-grid" id="country-grid"></div>
+  </section>
+
+  <!-- 分类视图 -->
+  <section id="view-categories" class="view">
+    <div class="cat-grid" id="cat-grid"></div>
+  </section>
+
+  <!-- 关于视图 -->
+  <section id="view-about" class="view">
+    <div class="about-box">
+      <h2>📺 WebTV — 开源 IPTV 播放平台</h2>
+      <p>聚合全球公开免费的电视直播频道，支持多源自动切换与节目单。</p>
+      <h3>📡 数据来源</h3>
+      <ul id="src-list"></ul>
+      <p class="legal">本项目仅聚合公开可用流地址，不托管任何视频内容；版权归原频道所有。</p>
+    </div>
+  </section>
+</main>
+
+<!-- 播放浮层 -->
+<div id="player-overlay" class="player-overlay hidden">
+  <div class="player-box">
+    <div class="player-head">
+      <div class="player-title">
+        <img id="p-logo" alt=""><span id="p-name"></span>
+        <span id="p-quality" class="quality-badge"></span>
+        <span id="p-source-count" class="src-badge"></span>
+      </div>
+      <button id="p-close" class="p-close">✕</button>
+    </div>
+    <video id="video" controls autoplay playsinline></video>
+    <div class="epg-row" id="epg-row" style="display:none">
+      <span class="epg-label">📋 节目</span>
+      <span id="epg-now"></span>
+    </div>
+    <div class="src-bar" id="src-bar"></div>
+    <div class="player-foot">
+      <button id="p-switch" class="btn">切换下一源</button>
+      <span id="p-status" class="p-status"></span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
