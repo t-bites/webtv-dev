@@ -22,9 +22,16 @@
 ## 目录规范
 - `scripts/` — 数据拉取/处理/构建脚本
 - `data/raw/` — 原始拉取数据（gitignore）
-- `data/site/` — 站点产物（gitignore，单独发布）
+- `site/` — 站点产物（gitignore 数据部分，部署到 GitHub Pages）
 - `docs/` — 项目文档
 - `tests/` — 验证脚本
+
+## 部署
+- **站点**: https://t-bites.github.io/webtv/ （GitHub Pages，公开）
+- **代码**: https://github.com/t-bites/webtv-dev （公开开源）
+- **自动更新**: 每日 04:30 cron — 拉取 iptv-org → 重建分片 → 部署
+- 手动更新: `bash scripts/webtv_update.sh`
+- 手动部署: `bash scripts/deploy.sh`
 
 ## 来源标注
 所有频道/流均标注来源（iptv-org + 原始 provider）。版权归原频道所有，本项目仅聚合公开免费源。
